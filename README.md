@@ -187,17 +187,31 @@ Configurar permisos de tal forma que el usuario usuario_biblio no pueda eliminar
 ## 5 Consultas Básicas
 Listar todos los libros con su autor correspondiente.
 
+    SELECT l.id_libro, l.titulo, a.nombre AS autor
+    FROM libros l
+    JOIN autores a ON l.id_autor = a.id_autor;
 
 ![](4.png)
 
 
 Mostrar los préstamos que aún no tienen fecha de devolución.
+    
+    SELECT p.id_prestamo, l.titulo, p.usuario_prestatario, p.fecha_prestamo
+    FROM prestamos p
+    JOIN libros l ON p.id_libro = l.id_libro
+    WHERE p.fecha_devolucion IS NULL;
 
-
+    
 ![](5.png)
 
 
 Obtener los autores que tienen más de un libro registrado.
+
+    SELECT a.id_autor, a.nombre, COUNT(l.id_libro) AS cantidad_libros
+    FROM autores a
+    JOIN libros l ON a.id_autor = l.id_autor
+    GROUP BY a.id_autor, a.nombre
+    HAVING COUNT(l.id_libro) > 1;
 
 
 ![](6.png)
@@ -207,11 +221,18 @@ Obtener los autores que tienen más de un libro registrado.
 ## 6 Consultas con Agregación
 Calcular el número total de préstamos realizados.
 
+    SELECT COUNT(*) AS total_prestamos
+    FROM prestamos;
+
 
 ![](7.png)
 
 
 Obtener el número de libros prestados por cada usuario.
+
+    SELECT usuario_prestatario, COUNT(*) AS libros_prestados
+    FROM prestamos
+    GROUP BY usuario_prestatario;
 
 
 ![](8.png)
@@ -236,6 +257,9 @@ Actualizar la fecha de devolución de un préstamo pendiente.
 
 Eliminar un libro y comprobar el efecto en la tabla de préstamos (usar ON DELETE CASCADE o justificar el comportamiento).
 
+    DELETE FROM libros WHERE id_libro = 11;
+
+    
 ![](7-2.png)
 
 
@@ -244,9 +268,9 @@ Como se puede ver en la imagen, al intentar eliminar el libro da erroor porque e
 ## 8 Creación de Vistas
 Crear una vista llamada vista_libros_prestados que muestre: título del libro, autor y nombre del prestatario.
 
-CREATE OR REPLACE VIEW vista_libros_prestados AS
+    CREATE OR REPLACE VIEW vista_libros_prestados AS
 
-SELECT 
+    SELECT 
 
     l.titulo AS titulo_libro,
     
@@ -259,7 +283,7 @@ SELECT
 
 Conceder permisos de consulta sobre esta vista únicamente a usuario_biblio.
 
-GRANT SELECT ON vista_libros_prestados TO usuario_biblio;
+    GRANT SELECT ON vista_libros_prestados TO usuario_biblio;
 
 
 ![](12.png)
@@ -267,14 +291,31 @@ GRANT SELECT ON vista_libros_prestados TO usuario_biblio;
 
 
 ## 9 Funciones y Consultas Avanzadas
-Crear una función que reciba el nombre de un autor y devuelva todos los libros escritos por él.
+Crear una función que reciba el nombre de un autor y devuelva todos los libros escritos por él (necesite ayuda para realizar este).
 
+    -- Función que devuelve los libros de un autor
+    CREATE OR REPLACE FUNCTION libros_por_autor(nombre_autor VARCHAR)
+    RETURNS TABLE(id_libro INT, titulo VARCHAR, año_publicacion INT) AS $$
+    BEGIN
+        RETURN QUERY
+        SELECT l.id_libro, l.titulo, l.año_publicacion
+        FROM libros l
+        JOIN autores a ON l.id_autor = a.id_autor
+        WHERE a.nombre ILIKE nombre_autor;
+    END;
+    $$ LANGUAGE plpgsql;
 
 ![](9.png)
 
 
 Crear una consulta que devuelva los tres libros más prestados.
 
+    SELECT l.titulo, COUNT(p.id_prestamo) AS total_prestamos
+    FROM prestamos p
+    JOIN libros l ON p.id_libro = l.id_libro
+    GROUP BY l.titulo
+    ORDER BY total_prestamos DESC
+    LIMIT 3;
 
 ![](10.png)
 
