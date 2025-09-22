@@ -80,7 +80,7 @@ INSERT INTO autores (id_autor, nombre, nacionalidad) VALUES
 (DEFAULT, 'Isabel Allende', 'Chile'),
 (DEFAULT, 'J.K. Rowling', 'Reino Unido'),
 (DEFAULT, 'Haruki Murakami', 'Japón');
-![](fuente/1.png)
+![](1.png)
 
 -- Libros
 INSERT INTO libros (titulo, año_publicacion, id_autor) VALUES
