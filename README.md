@@ -6,9 +6,8 @@
 
 
 ## 1 Creación de la Base de Datos
-sql:
 
-CREATE DATABASE biblioteca;
+    CREATE DATABASE biblioteca;
 
 
 
@@ -17,53 +16,53 @@ Crear dos usuarios:
 
 -- Usuario administrador
 
-CREATE USER admin_biblio WITH PASSWORD 'admin123';
+    CREATE USER admin_biblio WITH PASSWORD 'admin123';
 
 -- Usuario solo lectura
 
-CREATE USER usuario_biblio WITH PASSWORD 'usuario123';
+    CREATE USER usuario_biblio WITH PASSWORD 'usuario123';
 
 
 Crear un rol llamado lectores con permisos únicamente de consulta sobre todas las tablas de la base de datos.
 
-CREATE ROLE lectores;
+    CREATE ROLE lectores;
 
 
-GRANT CONNECT ON DATABASE biblioteca TO lectores;
+    GRANT CONNECT ON DATABASE biblioteca TO lectores;
 
-GRANT USAGE ON SCHEMA public TO lectores;
+    GRANT USAGE ON SCHEMA public TO lectores;
 
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO lectores;
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO lectores;
 
 
 -- Nuevas tablas tendrán automáticamente permisos de lectura
 
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public
 
-GRANT SELECT ON TABLES TO lectores;
+    GRANT SELECT ON TABLES TO lectores;
 
 
 
 Asignar el usuario usuario_biblio a este rol.
 
-GRANT lectores TO usuario_biblio;
+    GRANT lectores TO usuario_biblio;
 
 
 Consultar las tablas del sistema para listar todos los usuarios creados 
 
-SELECT rolname, rolsuper, rolcreaterole, rolcreatedb, rolcanlogin
+    SELECT rolname, rolsuper, rolcreaterole, rolcreatedb, rolcanlogin
 
-FROM pg_roles;
+    FROM pg_roles;
 
 
 Cambiar la contraseña del usuario usuario_biblio.
 
-ALTER USER usuario_biblio WITH PASSWORD 'nueva_clave';
+    ALTER USER usuario_biblio WITH PASSWORD 'nueva_clave';
 
 
 Configurar permisos de tal forma que el usuario usuario_biblio no pueda eliminar registros en ninguna tabla.
 
-REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM usuario_biblio;
+    REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM usuario_biblio;
 
 
 
@@ -71,7 +70,7 @@ REVOKE INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public FROM usuario_biblio
 
 -- Autores
 
-CREATE TABLE autores (
+    CREATE TABLE autores (
 
     id_autor SERIAL PRIMARY KEY,
     
@@ -79,12 +78,12 @@ CREATE TABLE autores (
     
     nacionalidad VARCHAR(50)
     
-);
+    );
 
 
 -- Libros
 
-CREATE TABLE libros (
+    CREATE TABLE libros (
 
     id_libro SERIAL PRIMARY KEY,
     
@@ -96,12 +95,12 @@ CREATE TABLE libros (
     
     CONSTRAINT fk_autor FOREIGN KEY(id_autor) REFERENCES autores(id_autor)
     
-);
+    );
 
 
 -- Préstamos
 
-CREATE TABLE prestamos (
+    CREATE TABLE prestamos (
 
     id_prestamo SERIAL PRIMARY KEY,
     
@@ -117,26 +116,26 @@ CREATE TABLE prestamos (
     
         REFERENCES libros(id_libro)
         
-        ON DELETE CASCADE  -- opcional
+        ON DELETE CASCADE  -- No lo añadi cuando cree la tabla.
         
-);
+    );
 
 
 
 ## 4 Inserción de dato
 -- Autores (el autor 0 es Anónimo)
 
-INSERT INTO autores (id_autor, nombre, nacionalidad) VALUES
+    INSERT INTO autores (id_autor, nombre, nacionalidad) VALUES
 
-(0, 'Anónimo', 'Desconocida'),
+    (0, 'Anónimo', 'Desconocida'),
+    
+    (DEFAULT, 'Gabriel García Márquez', 'Colombia'),
 
-(DEFAULT, 'Gabriel García Márquez', 'Colombia'),
+    (DEFAULT, 'Isabel Allende', 'Chile'),
 
-(DEFAULT, 'Isabel Allende', 'Chile'),
+    (DEFAULT, 'J.K. Rowling', 'Reino Unido'),
 
-(DEFAULT, 'J.K. Rowling', 'Reino Unido'),
-
-(DEFAULT, 'Haruki Murakami', 'Japón');
+    (DEFAULT, 'Haruki Murakami', 'Japón');
 
 
 ![](2.png)
@@ -144,23 +143,23 @@ INSERT INTO autores (id_autor, nombre, nacionalidad) VALUES
 
 -- Libros
 
-INSERT INTO libros (titulo, año_publicacion, id_autor) VALUES
+    INSERT INTO libros (titulo, año_publicacion, id_autor) VALUES
 
-('Cien años de soledad', 1967, 2),
+    ('Cien años de soledad', 1967, 2),
 
-('Crónica de una muerte anunciada', 1981, 2),
+    ('Crónica de una muerte anunciada', 1981, 2),
 
-('La casa de los espíritus', 1982, 3),
+    ('La casa de los espíritus', 1982, 3),
 
-('Harry Potter y la piedra filosofal', 1997, 4),
+    ('Harry Potter y la piedra filosofal', 1997, 4),
 
-('Harry Potter y la cámara secreta', 1998, 4),
+    ('Harry Potter y la cámara secreta', 1998, 4),
 
-('Kafka en la orilla', 2002, 5),
+    ('Kafka en la orilla', 2002, 5),
 
-('1Q84', 2009, 5),
+    ('1Q84', 2009, 5),
 
-('Libro sin autor', 2025, 0);
+    ('Libro sin autor', 2025, 0);
 
 
 ![](1.png)
@@ -168,17 +167,17 @@ INSERT INTO libros (titulo, año_publicacion, id_autor) VALUES
 
 -- Préstamos (usar IDs reales de libros)
 
-INSERT INTO prestamos (id_libro, fecha_prestamo, fecha_devolucion, usuario_prestatario) VALUES
+    INSERT INTO prestamos (id_libro, fecha_prestamo, fecha_devolucion, usuario_prestatario) VALUES
 
-(1, '2025-09-01', '2025-09-10', 'usuario1'),
+    (1, '2025-09-01', '2025-09-10', 'usuario1'),
 
-(2, '2025-09-02', '2025-09-12', 'usuario2'),
+    (2, '2025-09-02', '2025-09-12', 'usuario2'),
 
-(3, '2025-09-03', '2025-09-13', 'usuario3'),
+    (3, '2025-09-03', '2025-09-13', 'usuario3'),
 
-(4, '2025-09-04', '2025-09-14', 'usuario4'),
+    (4, '2025-09-04', '2025-09-14', 'usuario4'),
 
-(5, '2025-09-05', NULL,      'usuario5'); -- préstamo pendiente
+    (5, '2025-09-05', NULL,      'usuario5'); -- préstamo pendiente
 
 
 ![](3.png)
@@ -223,13 +222,13 @@ Obtener el número de libros prestados por cada usuario.
 Actualizar la fecha de devolución de un préstamo pendiente.
 
 
-UPDATE prestamos
+    UPDATE prestamos
 
-SET fecha_devolucion = CURRENT_DATE
+    SET fecha_devolucion = CURRENT_DATE
 
-WHERE id_prestamo = 16
+    WHERE id_prestamo = 16
 
-  AND fecha_devolucion IS NULL;
+      AND fecha_devolucion IS NULL;
   
 
 ![](11.png)
@@ -237,8 +236,10 @@ WHERE id_prestamo = 16
 
 Eliminar un libro y comprobar el efecto en la tabla de préstamos (usar ON DELETE CASCADE o justificar el comportamiento).
 
-## FALTA
+![](7-2.png)
 
+
+Como se puede ver en la imagen, al intentar eliminar el libro da erroor porque esta en la tabla prestamo y no añadi para borrar en cascado, para solucionarlo tendriamos que modifcar las tablas para que se pueda borrar en cascada o borrar a mano los prestamos.
 
 ## 8 Creación de Vistas
 Crear una vista llamada vista_libros_prestados que muestre: título del libro, autor y nombre del prestatario.
@@ -253,11 +254,7 @@ SELECT
     
     p.usuario_prestatario
     
-FROM prestamos p
-
-JOIN libros l   ON p.id_libro = l.id_libro
-
-JOIN autores a  ON l.id_autor = a.id_autor;
+    FROM prestamos p  JOIN libros l   ON p.id_libro = l.id_libro    JOIN autores a  ON l.id_autor = a.id_autor;
 
 
 Conceder permisos de consulta sobre esta vista únicamente a usuario_biblio.
@@ -283,7 +280,30 @@ Crear una consulta que devuelva los tres libros más prestados.
 
 
 ## 10 Exportación e importación de datos
+La manera más fácil de exportar e importar datos en PostgreSQL es usando DBeaver, ya que ofrece un asistente visual y no necesitas usar comandos SQL manualmente.
+
 Exportar el contenido de la tabla libros a un archivo CSV.
+
+
+![](10-1.png)
+
+
 Importar datos adicionales de autores desde un archivo CSV externo.
 
-## FALTA 
+
+![](10-2.png)
+
+
+Cambios realizados (autor 'externo'):
+
+
+![](10-2-2.png)
+
+
+
+
+
+
+
+
+
